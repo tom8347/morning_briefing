@@ -21,4 +21,4 @@ CALENDARS = {
 # Polling settings
 MIN_SLEEP_HOURS = 4       # Minimum sleep duration to count as wake-up
 FALLBACK_HOUR = 12        # Fire briefing at noon if no Oura data
-POLL_INTERVAL_SECONDS = 900  # 15 minutes
+POLL_INTERVAL_SECONDS = 600  # 10 minutes
