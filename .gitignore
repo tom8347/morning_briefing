@@ -1,0 +1,5 @@
+config.py
+.morning_briefing/
+.direnv/
+__pycache__/
+*.pyc

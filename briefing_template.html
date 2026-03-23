@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Morning Briefing — $date_formatted</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100vh;
+  overflow: hidden;
+  background: #e4ddd4;
+  color: #2d2d2d;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 22px;
+  line-height: 1.4;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem 1.5rem;
+  gap: 1rem;
+}
+
+/* ── HEADER ── */
+.header {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+.header h1 {
+  font-size: 2.2rem;
+  font-weight: 300;
+  color: #5a4e44;
+}
+.header .date {
+  font-size: 1.1rem;
+  color: #8a7e74;
+  margin-top: 0.1rem;
+}
+
+/* ── MAIN GRID ── */
+.main {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* ── CARDS ── */
+.card {
+  background: #f0ebe5;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 1rem 1.2rem;
+  overflow: hidden;
+}
+.card-title {
+  text-align: center;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a7e74;
+  margin-bottom: 0.5rem;
+}
+
+/* ── LEFT COLUMN ── */
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-height: 0;
+}
+
+/* Health row */
+.health-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 0.8rem;
+}
+.health-card {
+  text-align: center;
+}
+.health-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a7e74;
+  margin-bottom: 0.2rem;
+}
+.health-score {
+  font-size: 3.2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.health-subs {
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+  line-height: 1.4;
+}
+
+/* Resilience chart */
+.resilience-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 0.3rem;
+}
+
+/* Activity nudge */
+.nudge {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #c4816f;
+  font-style: italic;
+  padding: 0.3rem 0 0;
+}
+
+/* Bottom stack */
+.bottom-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Weather + Schedule side by side */
+.weather-schedule-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+/* Weather */
+.weather-info {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.weather-temp {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #5a4e44;
+}
+.weather-detail {
+  color: #6b5e54;
+}
+
+/* Schedule */
+.schedule-list {
+  list-style: none;
+  font-size: 0.95rem;
+}
+.schedule-list li {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #e4ddd4;
+}
+.schedule-list li:last-child { border-bottom: none; }
+.schedule-time {
+  font-weight: 600;
+  color: #6b5e54;
+  margin-right: 0.5rem;
+}
+.schedule-cal {
+  font-size: 0.75rem;
+  color: #8a7e74;
+}
+.schedule-empty {
+  color: #8a7e74;
+  font-style: italic;
+}
+
+/* News */
+.news-source {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a7e74;
+  margin-top: 0.3rem;
+  font-weight: 600;
+}
+.news-source:first-child { margin-top: 0; }
+.news-list {
+  list-style: none;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+.news-list li {
+  padding: 0.15rem 0;
+  border-bottom: 1px solid #e4ddd4;
+  color: #3a3535;
+}
+.news-list li:last-child { border-bottom: none; }
+.news-list a {
+  color: #3a3535;
+  text-decoration: none;
+  cursor: pointer;
+}
+.news-list a:hover {
+  color: #5a4e44;
+  text-decoration: underline;
+}
+
+/* ── RIGHT COLUMN — ON THIS DAY ── */
+.right {
+  min-height: 0;
+}
+.right .card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.wiki-year {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #c9a0a0;
+  margin-bottom: 0.3rem;
+  flex-shrink: 0;
+}
+.wiki-title {
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #5a4e44;
+  margin-bottom: 0.6rem;
+  flex-shrink: 0;
+}
+.wiki-summary {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #3a3535;
+  margin-bottom: 0.8rem;
+  flex-shrink: 0;
+}
+.wiki-cartoon {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.wiki-cartoon img, .wiki-cartoon svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Good morning, Tom</h1>
+  <div class="date">$date_formatted</div>
+</div>
+
+<div class="main">
+  <!-- LEFT COLUMN -->
+  <div class="left">
+    <div class="health-row">
+      <div class="card health-card">
+        <div class="health-label">Sleep</div>
+        <div class="health-score" style="color: $sleep_color">$sleep_score</div>
+        <div class="health-subs">$sleep_subs</div>
+      </div>
+      <div class="card health-card">
+        <div class="health-label">Readiness</div>
+        <div class="health-score" style="color: $readiness_color">$readiness_score</div>
+        <div class="health-subs">$readiness_subs</div>
+      </div>
+      <div class="card health-card">
+        <div class="health-label">Resilience</div>
+        <div class="resilience-chart">$resilience_svg</div>
+      </div>
+    </div>
+    $activity_nudge
+    <div class="bottom-stack">
+      <div class="weather-schedule-row">
+        <div class="card">
+          <div class="card-title">Weather — Pinner</div>
+          $weather_html
+        </div>
+        <div class="card">
+          <div class="card-title">Schedule</div>
+          $schedule_html
+        </div>
+      </div>
+      <div class="card" style="flex:1; min-height:0; overflow-y:auto;">
+        <div class="card-title">Headlines</div>
+        $news_html
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="right">
+    <div class="card">
+      <div class="card-title">On This Day</div>
+      <div class="wiki-year">$wiki_year</div>
+      <div class="wiki-title">$wiki_title</div>
+      <div class="wiki-summary">$wiki_summary</div>
+      <div class="wiki-cartoon">$wiki_svg</div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.news-list a').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.location.href = this.href;
+  });
+});
+</script>
+</body>
+</html>
