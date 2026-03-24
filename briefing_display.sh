@@ -19,4 +19,7 @@ hyprctl dispatch dpms on 2>/dev/null || true
 # When Chromium exits (user dismisses), the inhibitor is released automatically.
 exec systemd-inhibit --what=idle --mode=block \
     brave --user-data-dir=/tmp/morning-briefing-brave \
+    --password-store=basic \
+    --disable-features=KWalletIntegration \
+    --ozone-platform=wayland \
     --kiosk --noerrdialogs --disable-infobars "file://$HTML_FILE"

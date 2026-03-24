@@ -18,7 +18,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import requests
 
@@ -48,10 +48,16 @@ def mark_triggered(today):
 
 
 def detect_wakeup(access_token, today):
-    """Check if a long_sleep session ≥4h has completed today."""
+    """Check if a long_sleep session ≥4h exists for last night.
+
+    Oura files sleep sessions under the day you went to bed, so last
+    night's sleep appears under yesterday's date, not today's.
+    We check both yesterday and today to be safe.
+    """
     headers = {"Authorization": f"Bearer {access_token}"}
+    yesterday = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
     resp = requests.get(f"{OURA_BASE}/v2/usercollection/sleep", headers=headers,
-                        params={"start_date": today, "end_date": today})
+                        params={"start_date": yesterday, "end_date": today})
     if not resp.ok:
         print(f"  Oura API error: {resp.status_code}")
         return False
@@ -60,10 +66,12 @@ def detect_wakeup(access_token, today):
     for s in sessions:
         if s.get("type") != "long_sleep":
             continue
-        # Check duration (total_sleep_duration is in seconds)
+        # Only consider sessions from yesterday (last night's sleep)
+        if s.get("day") not in (yesterday, today):
+            continue
         duration_hours = s.get("total_sleep_duration", 0) / 3600
         if duration_hours >= config.MIN_SLEEP_HOURS:
-            print(f"  Wake-up detected: {duration_hours:.1f}h sleep session")
+            print(f"  Wake-up detected: {duration_hours:.1f}h sleep (day={s.get('day')})")
             return True
 
     print(f"  No qualifying sleep session yet ({len(sessions)} sessions found)")
