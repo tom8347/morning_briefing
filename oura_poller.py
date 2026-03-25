@@ -116,7 +116,11 @@ def poll_loop():
 
         if already_triggered(today):
             # Already fired today — sleep until next poll
-            print(f"[{now.strftime('%H:%M')}] Already triggered today, sleeping...")
+            time.sleep(config.POLL_INTERVAL_SECONDS)
+            continue
+
+        if now.hour < config.EARLIEST_HOUR:
+            print(f"[{now.strftime('%H:%M')}] Too early (before {config.EARLIEST_HOUR}:00), sleeping...")
             time.sleep(config.POLL_INTERVAL_SECONDS)
             continue
 
