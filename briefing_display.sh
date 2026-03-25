@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Open the morning briefing HTML in Chromium kiosk mode.
-# Ensures the screen is on and prevents idle sleep while briefing is showing.
-# When Chromium is closed, the idle inhibitor is automatically released.
+# Open the morning briefing HTML in Brave kiosk mode.
+# Prevents idle sleep while briefing is showing.
+# When Brave is closed, the idle inhibitor is automatically released.
 #
 # Usage: ./briefing_display.sh /path/to/briefing.html
 
@@ -12,16 +12,6 @@ if [ ! -f "$HTML_FILE" ]; then
     exit 1
 fi
 
-# Pick up Hyprland instance signature if not set (needed when run from systemd)
-if [ -z "$HYPRLAND_INSTANCE_SIGNATURE" ]; then
-    export HYPRLAND_INSTANCE_SIGNATURE=$(ls -t "${XDG_RUNTIME_DIR:-/run/user/1000}/hypr/" 2>/dev/null | head -1)
-fi
-
-# Wake the screen if it's off
-hyprctl dispatch dpms on 2>/dev/null || true
-
-# Launch Chromium wrapped in systemd-inhibit so screen stays on.
-# When Chromium exits (user dismisses), the inhibitor is released automatically.
 exec systemd-inhibit --what=idle --mode=block \
     brave --user-data-dir=/tmp/morning-briefing-brave \
     --password-store=basic \

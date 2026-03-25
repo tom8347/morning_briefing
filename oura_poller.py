@@ -78,8 +78,22 @@ def detect_wakeup(access_token, today):
     return False
 
 
+def wake_screen():
+    """Wake the display via hyprctl, auto-detecting Hyprland instance."""
+    hypr_dir = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/run/user/1000"), "hypr")
+    if not os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
+        try:
+            instances = sorted(os.listdir(hypr_dir), key=lambda f: os.path.getmtime(os.path.join(hypr_dir, f)), reverse=True)
+            if instances:
+                os.environ["HYPRLAND_INSTANCE_SIGNATURE"] = instances[0]
+        except OSError:
+            pass
+    subprocess.run(["hyprctl", "dispatch", "dpms", "on"], capture_output=True)
+
+
 def display_briefing(html_path):
-    """Open the briefing in Chromium kiosk mode."""
+    """Open the briefing in Brave kiosk mode."""
+    wake_screen()
     display_script = os.path.join(PROJECT_DIR, "briefing_display.sh")
     subprocess.Popen([display_script, html_path])
 
