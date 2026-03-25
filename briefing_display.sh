@@ -12,6 +12,11 @@ if [ ! -f "$HTML_FILE" ]; then
     exit 1
 fi
 
+# Pick up Hyprland instance signature if not set (needed when run from systemd)
+if [ -z "$HYPRLAND_INSTANCE_SIGNATURE" ]; then
+    export HYPRLAND_INSTANCE_SIGNATURE=$(ls -t "${XDG_RUNTIME_DIR:-/run/user/1000}/hypr/" 2>/dev/null | head -1)
+fi
+
 # Wake the screen if it's off
 hyprctl dispatch dpms on 2>/dev/null || true
 
