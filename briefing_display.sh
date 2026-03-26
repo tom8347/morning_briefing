@@ -12,10 +12,13 @@ if [ ! -f "$HTML_FILE" ]; then
     exit 1
 fi
 
-# Stop hypridle so it can't turn the monitor off while briefing is showing
+# Stop hypridle FIRST so it can't disable the monitor while we work
 systemctl --user stop hypridle.service 2>/dev/null || true
 
-# Ensure monitor is on
+# Re-enable monitor fully (hypridle uses 'hyprctl keyword monitor ... disable'
+# which disconnects the monitor entirely — dpms on alone won't fix that)
+hyprctl keyword monitor "HDMI-A-1,2560x1440@59.951,0x0,1.25" 2>/dev/null || true
+sleep 1
 hyprctl dispatch dpms on 2>/dev/null || true
 
 # Launch Brave kiosk — this blocks until Brave exits

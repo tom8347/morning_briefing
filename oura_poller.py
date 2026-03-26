@@ -90,7 +90,11 @@ def detect_wakeup(access_token, today):
 
 
 def wake_screen():
-    """Wake the display via hyprctl, auto-detecting Hyprland instance."""
+    """Wake the display via hyprctl, auto-detecting Hyprland instance.
+
+    hypridle disables the monitor entirely via 'hyprctl keyword monitor ... disable'
+    so we must re-enable it with the full monitor spec, not just dpms on.
+    """
     hypr_dir = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/run/user/1000"), "hypr")
     if not os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
         try:
@@ -99,6 +103,7 @@ def wake_screen():
                 os.environ["HYPRLAND_INSTANCE_SIGNATURE"] = instances[0]
         except OSError:
             pass
+    subprocess.run(["hyprctl", "keyword", "monitor", "HDMI-A-1,2560x1440@59.951,0x0,1.25"], capture_output=True)
     subprocess.run(["hyprctl", "dispatch", "dpms", "on"], capture_output=True)
 
 
