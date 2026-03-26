@@ -48,14 +48,16 @@ def mark_triggered(today):
 
 
 def detect_wakeup(access_token, today):
-    """Check if a long_sleep session ≥4h exists for last night.
+    """Detect wake-up by checking if a long_sleep session has ended today.
 
-    Oura files sleep sessions under the day you went to bed, so last
-    night's sleep appears under yesterday's date, not today's.
-    We check both yesterday and today to be safe.
+    We look at bedtime_end rather than duration — a session that ended
+    today means you actually woke up today. Sessions are filed under the
+    day sleep started, so we check yesterday and today.
     """
     headers = {"Authorization": f"Bearer {access_token}"}
     yesterday = (date.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+    now = datetime.now().astimezone()
+
     resp = requests.get(f"{OURA_BASE}/v2/usercollection/sleep", headers=headers,
                         params={"start_date": yesterday, "end_date": today})
     if not resp.ok:
@@ -66,15 +68,24 @@ def detect_wakeup(access_token, today):
     for s in sessions:
         if s.get("type") != "long_sleep":
             continue
-        # Only consider sessions from yesterday (last night's sleep)
-        if s.get("day") not in (yesterday, today):
-            continue
         duration_hours = s.get("total_sleep_duration", 0) / 3600
-        if duration_hours >= config.MIN_SLEEP_HOURS:
-            print(f"  Wake-up detected: {duration_hours:.1f}h sleep (day={s.get('day')})")
-            return True
+        if duration_hours < config.MIN_SLEEP_HOURS:
+            continue
+        bedtime_end_str = s.get("bedtime_end")
+        if not bedtime_end_str:
+            continue
+        # Parse bedtime_end and check it's today
+        from datetime import timezone
+        bedtime_end = datetime.fromisoformat(bedtime_end_str)
+        if bedtime_end.date() != date.today():
+            continue
+        # Check end time is in the past (session has actually finished)
+        if bedtime_end > now:
+            continue
+        print(f"  Wake-up detected: {duration_hours:.1f}h sleep, woke at {bedtime_end.strftime('%H:%M')}")
+        return True
 
-    print(f"  No qualifying sleep session yet ({len(sessions)} sessions found)")
+    print(f"  No wake-up yet ({len(sessions)} sessions checked)")
     return False
 
 
